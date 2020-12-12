@@ -8,12 +8,13 @@
 //   export function request(config) {
 //       //1.创建axios的实例
 //       const instance = axios.create({
-//             baseURL: 'http://152.136.185.210:8000/api/w6',
+//             baseURL: 'https://www.liulongbin.top:8888/api/private/v1/',
 //              timeout: 5000
 //            })
 //       //2.axios的拦截
 //       //2.1请求拦截(请求成功拦截，请求失败拦截)  interceptors(拦截器)
-//       instance.interceptors.request.use(config => {  
+//       instance.interceptors.request.use(config => { 
+//         console.log(config) 
 //         return config  //拦截请求，并做出一些处理后，要把拦截的请求返回
 //       }, err =>{ 
 //         //console.log(err)
