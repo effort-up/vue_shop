@@ -18,8 +18,8 @@
           <template slot-scope="scope">
             <el-button type="primary" icon="el-icon-edit" size="mini" @click="editDialog(scope.row.id)"></el-button>
             <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteDialog(scope.row.id)"></el-button>
-            <el-tooltip effect="dark" content="修改权限" placement="top-start" :enterable="false">
-              <el-button type="warning" icon="el-icon-s-tools"  size="mini"></el-button>
+            <el-tooltip effect="dark" content="修改权限" placement="top-start" :enterable="false" >
+              <el-button type="warning" icon="el-icon-s-tools"  size="mini" @click="rolesDialog(scope.row)"></el-button>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -28,13 +28,10 @@
   </div>
 </template>
 <script>
+
+
 export default {
   name: "UserTable",
-  data() {
-    return {
-      editUserInfo: null
-    }
-  },
   props: {
     userList: {
       type: Array,
@@ -60,7 +57,6 @@ export default {
     async editDialog(id) {
       const {data: res} = await this.$http.get('users/' + id)
       if(res.meta.status != 200) return this.$message.error('查询用户信息失败！');
-      this.editUserInfo = res.data
       this.$emit('editDialog', res.data)
     },
     //删除用户
@@ -70,12 +66,18 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).catch(err => err)  
+      //点确定时， $confirm会返回 confirm,所以当返回值不为 confirm 时，说明点的取消
       if(confirmResult !== 'confirm') return this.$message.info('已取消删除')       
       const {data: res} = await this.$http.delete('users/' + id)
       if(res.meta.status != 200) return this.$message.error('删除用户失败！')
       this.$message.success('删除成功！')
       this.$emit('deleteDialog')      
+    },
+    //修改用户角色的按钮点击事件
+    rolesDialog(role) {
+      this.$emit('rolesDialog', role) //把事件向父组件传递，并且把 html 代码中的 用户信息 通过参数的方式拿到，再通过参数的方式传递给父组件
     }
+
   }
 };
 </script>
