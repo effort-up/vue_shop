@@ -14,3 +14,7 @@ html, body, #app{
   margin-top: 15px;
   margin-bottom: 15px;
 }
+.el-cascader-menu {  
+  /* 级联选择器选项的高度 */
+  height: 200px;
+}

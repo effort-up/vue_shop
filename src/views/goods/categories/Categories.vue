@@ -15,7 +15,7 @@
       </el-row>
       <!-- tree-table 为插件，已在main.js中注册过 -->
       <tree-table :data="ctaeList" :columns="columns" :selection-type="false"
-                  :expand-type="false" show-index border>
+                  :expand-type="false" show-index border :show-row-hover="false">
         <!-- 自定义模板， 是否有效 -->
         <template slot="isOk" slot-scope="scope">
           <i class="el-icon-success" v-if="!scope.row.cat_deleted" style="color: lightgreen"></i>

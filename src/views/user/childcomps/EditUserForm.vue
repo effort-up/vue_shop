@@ -68,7 +68,7 @@ export default {
       this.$refs.editUserRef.resetFields()
     },
     editUser() {
-      this.$refs.editUserRef.validate(async valid => {
+      this.$refs.editUserRef.validate(async valid => { //预验证
         if(!valid) return
         const {data: res} = await this.$http.put('users/' + this.editUserForm.id, {  
             email: this.editUserForm.email,

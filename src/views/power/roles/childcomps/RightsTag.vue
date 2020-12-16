@@ -1,6 +1,6 @@
 <template>
   <div>
-    <row v-for="(item1) in scope.row.children" :key="item1.id"> -->
+    <row v-for="(item1) in scope.row.children" :key="item1.id"> 
       {{ item1.authName}}
     </row>
   </div>
