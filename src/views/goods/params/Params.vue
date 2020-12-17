@@ -24,6 +24,7 @@
         <el-tab-pane label="动态参数" name="many">
           <el-button type='primary' :disabled='isBtnDisabled' @click="addDialogVisible = true">添加参数</el-button>
           <el-table :data="manyTabList" style="width: 100%" border>
+            <!-- 扩展下拉框 -->
             <el-table-column type="expand">
               <template slot-scope="scope">
                 <el-tag v-for="(item,index) in scope.row.attr_vals" :key="index" closable @close='handleInputClose(index,scope.row)'>
@@ -50,6 +51,7 @@
         <el-tab-pane label="静态属性" name="only">
           <el-button type='primary' :disabled='isBtnDisabled' @click="addDialogVisible = true">添加属性</el-button>
           <el-table :data="onlyTabList" style="width: 100%" border>
+            <!-- 扩展下拉框 -->
             <el-table-column type="expand">
               <template slot-scope="scope">
                 <el-tag v-for="(item,index) in scope.row.attr_vals" :key="index" closable @close='handleInputClose(index,scope.row)'>
@@ -254,23 +256,26 @@ export default {
       this.$message.success('删除成功！')
       this.getParams()
     },
+    //添加属性输入框的显示(添加新的tag标签)
     showInput(row) {
       row.inputVisible = true
-      this.$nextTick(_ => {
-          this.$refs.saveTagInput.$refs.input.focus();
+      this.$nextTick(_ => { //在输入框渲染完成后，执行函数 
+          this.$refs.saveTagInput.$refs.input.focus();  //输入框自动获取焦点
         });
     },
+    //tag 输入框 按下回车键或失去焦点时，触发此事件
     handleInputConfirm(row) {
-      if(row.inputValue.trim().length === 0){
+      if(row.inputValue.trim().length === 0){ //输入框的值去除空格后的长度为 0 ,
         row.inputValue = ''
         row.inputVisible = false
         return 
       }
-      row.attr_vals.push(row.inputValue.trim())
+      row.attr_vals.push(row.inputValue.trim()) 
       row.inputValue = ''
       row.inputVisible = false
       this.saveInputValue(row)
     },
+    // 把最新的 attr_vals 属性值 保存到数据库中
     async saveInputValue(row) {
       const {data: res} = await this.$http.put(`categories/${this.selectkeys[2]}/attributes/${row.attr_id}`,{
         attr_name: row.attr_name,
@@ -280,8 +285,9 @@ export default {
       if(res.meta.status != 200) return this.$message.error('保存失败！')
       this.$message.success('保存成功！')
     },
+    //删除 tag 标签
     handleInputClose(index,row) {
-      row.attr_vals.splice(index, 1)
+      row.attr_vals.splice(index, 1) //删除数组中的数据，从下标为 index的值开始，删除一个
       this.saveInputValue(row)
     } 
 
