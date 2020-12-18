@@ -23,6 +23,7 @@
       <el-form :model="addForm" :rules="addFormRules" ref="addFormRef" label-width="100px" label-position='top'>
         <!-- 标签页  :tab-position="'left'" 标签页显示在左侧-->
       <el-tabs :tab-position="'left'"  v-model="activeStep" :before-leave='beforeLeaveTabs' @tab-click='changeTabs'>
+
         <el-tab-pane label="基本信息" name='0'>
           <el-form-item label="商品名称" prop="goods_name">
             <el-input v-model="addForm.goods_name"></el-input>
@@ -42,6 +43,7 @@
             </el-cascader>
           </el-form-item>
         </el-tab-pane>
+
         <el-tab-pane label="商品参数" name='1'>
           <el-form-item v-for="item in manyTabList" :key='item.attr_id' :label='item.attr_name'>
             <el-checkbox-group v-model="item.attr_vals" >
@@ -49,25 +51,31 @@
             </el-checkbox-group>
           </el-form-item>
         </el-tab-pane>
+
         <el-tab-pane label="商品属性" name='2'>
           <el-form-item v-for="item in onlyTabList" :key='item.attr_id' :label='item.attr_name'>
             <el-input :value='item.attr_vals'></el-input>
           </el-form-item>
         </el-tab-pane>
+
         <el-tab-pane label="商品图片" name='3'>
+          <!-- upload 组件(上传) -->
           <el-upload class="upload-demo" :action= actionURL :on-preview="handlePreview"
             :on-remove="handleRemove"  list-type="picture" :headers='headersObj' :on-success='uploadSuccess'>
             <el-button size="small" type="primary">点击上传</el-button>
           </el-upload>
         </el-tab-pane>
+
         <el-tab-pane label="商品内容" name='4'>
+           <!-- 富文本编辑器 -->
             <quill-editor  v-model="addForm.goods_introduce"/>
             <el-button type='primary' class="btnAdd" @click="add">添加商品</el-button>
         </el-tab-pane>
       </el-tabs>
       </el-form>
     </el-card>
-    <!-- 图片预览 -->
+
+    <!-- 图片预览对话框 -->
     <el-dialog title="图片预览" :visible.sync="previewDialogVisible" width="50%" >
       <img :src="preView" alt="图片" class="picture">
     </el-dialog> 
@@ -106,56 +114,60 @@ export default {
           { required: true, message: '请输入商品数量', trigger: 'blur' },
         ],
       },
-      cateList: [],
-      cascaderProps: { 
-        expandTrigger: 'hover' ,
-        value: 'cat_id',
-        label: 'cat_name',
-        children: 'children' 
+      cateList: [],  //分类数据
+      cascaderProps: {   //级联选择器的规则
+        expandTrigger: 'hover' ,  //hover 触发下一级分类
+        value: 'cat_id',     // 选项值为 id 值
+        label: 'cat_name',   // 选项为 分类名称
+        children: 'children'  //父子层级关系： 根据 children 来判断
       },
-      manyTabList: [],
-      onlyTabList: [],
-      actionURL: 'https://www.liulongbin.top:8888/api/private/v1/upload',
-      headersObj: {
+      manyTabList: [],  //动态参数数据
+      onlyTabList: [],  //静态属性数据
+      actionURL: 'https://www.liulongbin.top:8888/api/private/v1/upload', // 上传的图片要保存到服务器的绝对路径
+      headersObj: { //设置上传图片的 ajax 网络请求的 请求头 ：携带 token
         Authorization: window.sessionStorage.getItem('token')
       },
       preView: '', //图片绝对路径
-      previewDialogVisible: false
+      previewDialogVisible: false  //预览图片的对话框的状态
     }
   },
-  computed: {
+  computed: { 
     cateId() {
-      if(this.addForm.goods_cat.length === 3) {
-        return this.addForm.goods_cat[2]
+      if(this.addForm.goods_cat.length === 3) { // 判断 级联选择器是否选择三级分类，
+        return this.addForm.goods_cat[2]  //返回 三级分类的 id
       }
-      return null
+      return null  
     }
   },
   created() {
     this.getCateList()
   },
   methods: {
+    // 获取分类数据
     async getCateList() {
       const {data: res} = await this.$http.get('categories')
       if(res.meta.status != 200) return 
       this.cateList = res.data
       //console.log(res)
     },
+    // 级联选择器选项的改变
     handleChange() {
-      if(this.addForm.goods_cat.length !== 3) {
-        this.addForm.goods_cat = []
+      if(this.addForm.goods_cat.length !== 3) { //如果没有选择到三级分类
+        this.addForm.goods_cat = [] //清空表单分类数组(阻止级联选择器选择一级和二级分类)
         return 
       }
       //console.log(this.addForm.goods_cat)
     },
-    beforeLeaveTabs(activeName, oldActiveName) {
-      if(this.activeStep === '0' && this.addForm.goods_cat.length !== 3) {
+    //  即将离开旧标签页，去新标签页时触发此函数
+    beforeLeaveTabs(activeName, oldActiveName) { //activeName 当前要去往的标签页的 name, oldActiveName 即将离开的标签页的 name
+      if(this.activeStep === '0' && this.addForm.goods_cat.length !== 3) { //当在第一个标签页且 级联选择器没有选择三级分类时
         this.$message.error('请先选择商品分类')
-        return false
+        return false  // 当 beforeLeaveTabs 函数返回 false 时，会阻止跳转到其他标签页
       }
     },
+    // tabs 标签页发生改变
     async changeTabs() {
-      if(this.activeStep === '1') {
+      if(this.activeStep === '1') { //去第二个标签页
         const {data: res} = await this.$http.get(`categories/${this.cateId}/attributes`,{
           params: {sel: 'many'}
         })
@@ -166,7 +178,7 @@ export default {
         })
         this.manyTabList = res.data
         console.log(this.manyTabList)
-      }else if(this.activeStep === '2') {
+      }else if(this.activeStep === '2') { //去第三个标签页
         const {data: res} = await this.$http.get(`categories/${this.cateId}/attributes`,{
           params: {sel: 'only'}
         })
@@ -206,20 +218,21 @@ export default {
       this.addForm.pics.push(picInfo)
       //console.log(this.addForm)
     },
+    // 添加商品的按钮
     add() {
-      this.$refs.addFormRef.validate(async valid => {
+      this.$refs.addFormRef.validate(async valid => { //表单预验证
         if(!valid) return this.$message.error('请填写必要的内容！')
-        const form = _.cloneDeep(this.addForm)
+        const form = _.cloneDeep(this.addForm) //深拷贝
         form.goods_cat = form.goods_cat.join(',') //把数组转换为字符串，并且每个元素以 , 分隔开来
         
-        this.manyTabList.forEach(item => {
+        this.manyTabList.forEach(item => { //遍历循环动态参数数组，把每一个元素中的 id 和 vals 值取出，放入一个对象中，在添加到 attrs数组中
           const newInfo = {
             attr_id: item.attr_id,
-            attr_value: item.attr_vals.join(' ')
+            attr_value: item.attr_vals.join(' ') //attr_vals 为数组，所以转换为字符串
           }
           this.addForm.attrs.push(newInfo)
         })
-        this.onlyTabList.forEach(item => {
+        this.onlyTabList.forEach(item => { //遍历循环静态属性数组，把每一个元素中的 id 和 vals 值取出，放入一个对象中，在添加到 attrs数组中
           const newInfo = {
             attr_id: item.attr_id,
             attr_value: item.attr_vals
@@ -232,7 +245,7 @@ export default {
         if(res.meta.status != 201) return this.$message.error('添加商品失败！')
          this.$message.success('添加商品成功！')
         // this.$router.push('/goods')
-        this.$router.push('/goods')
+        this.$router.push('/goods') 
       })
     }
   }

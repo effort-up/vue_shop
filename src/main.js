@@ -18,7 +18,9 @@ axios.interceptors.request.use(config => {
 Vue.prototype.$http = axios
 Vue.component('tree-table', ZkTable)
 
+// 导入 element 按需导入的文件
 import './plugins/element.js'
+// 导入 全局 css 文件
 import './assets/css/golbal.css'
 // 引入富文本编辑器的样式
 import 'quill/dist/quill.core.css' // import styles
@@ -39,6 +41,7 @@ Vue.filter('dateFormat', function(originVal) { //originVal 传入的时间戳
   const mm = (dt.getMinutes() + '').padStart(2, '0')
   const ss = (dt.getSeconds() + '').padStart(2, '0')
 
+  // 输出时间的格式
   return `${y}-${m}-${d} ${hh}:${mm}:${ss}`
 })
 
