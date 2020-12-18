@@ -78,7 +78,6 @@
           {{activity.context}}
         </el-timeline-item>
       </el-timeline>
-
     </el-dialog>
   </div>
 </template>
